@@ -5,6 +5,13 @@ on:
     branches:
       - "**"
 
+# Workaround for @t3oss env package which requires env variables to be present
+env:
+  DATABASE_URL: "http://database.com"
+  GOOGLE_CLIENT_ID: "gci"
+  GOOGLE_CLIENT_SECRET: "gcs"
+  NEXT_PUBLIC_BASE_URL: "http://localhost:3000"
+
 jobs:
   build:
     runs-on: ubuntu-latest
