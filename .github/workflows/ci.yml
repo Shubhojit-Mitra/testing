@@ -7,7 +7,7 @@ on:
 
 # Workaround for @t3oss env package which requires env variables to be present
 env:
-  DATABASE_URL: "http://database.com"
+  DATABASE_URL: "postgresql://username:password@dbbranch.ap-southeast-1.aws.neon.tech/dbname?sslmode=require"
   GOOGLE_CLIENT_ID: "gci"
   GOOGLE_CLIENT_SECRET: "gcs"
   NEXT_PUBLIC_BASE_URL: "http://localhost:3000"
