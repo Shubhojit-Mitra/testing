@@ -1,6 +1,12 @@
 name: Deploy Preview
 
-on: [pull_request]
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+  pull_request:
+    types:
+      - labeled
 
 env:
   DB_USERNAME: ${{ secrets.DB_USERNAME }}
@@ -10,6 +16,7 @@ env:
 
 jobs:
   deploy-preview:
+    if: ${{ github.event.label.name == 'needs-preview' }}
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
@@ -28,18 +35,22 @@ jobs:
           username: ${{ env.DB_USERNAME }}
           api_key: ${{ env.NEON_API_KEY }}
 
+      - name: Setup pnpm 8
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
       - name: Run Migrations
         run: |
           touch .env
 
-          echo DATABASE_URL=${{ steps.create-branch.outputs.db_url_with_pooler }}?sslmode=require >> .env
-          echo DIRECT_URL=${{ steps.create-branch.outputs.db_url }}?sslmode=require >> .env
+          echo DATABASE_URL=${{ steps.create-branch.outputs.db_url }}?sslmode=require >> .env
 
-          npx prisma generate
-          npx prisma migrate deploy
+          pnpm run db:generate
+          pnpm run db:migrate
 
       - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+        run: pnpm install --global vercel@latest
 
       - name: Pull Vercel Environment Information
         run: vercel pull --yes --environment=preview --token=${{ env.VERCEL_TOKEN }}
